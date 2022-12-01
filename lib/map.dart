@@ -88,14 +88,18 @@ class MapSampleState extends State<MapSample> {
               IconButton(
                 onPressed: () async {
                   var directions = await LocationService().getDirections(
-                      _originController.text, '55.762292,37.601592');
+                      _originController.text, '55.762292,37.601592', 'WALKING');
                   _setPolyline(directions['polyline_decoded'], Colors.blue);
                   var directions2 = await LocationService().getDirections(
-                      '55.762292,37.601592', '55.764586,37.645235');
+                      '55.762292,37.601592',
+                      '55.764586,37.645235',
+                      'BICYCLING');
                   _setPolyline(
                       directions2['polyline_decoded'], Colors.pinkAccent);
                   var directions3 = await LocationService().getDirections(
-                      '55.764586,37.645235', _destinationController.text);
+                      '55.764586,37.645235',
+                      _destinationController.text,
+                      'WALKING');
                   _setPolyline(directions3['polyline_decoded'], Colors.blue);
                   //focusing the camera to the whole route
                   _goToPlace(
