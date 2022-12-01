@@ -35,11 +35,10 @@ class LocationService {
   Future<Map<String, dynamic>> getDirections(
       String origin, String destination, String mode) async {
     final String url =
-        'https://maps.googleapis.com/maps/api/directions/json?origin=$origin&destination=$destination&key=$key&region=ru&mode=$mode';
+        'https://maps.googleapis.com/maps/api/directions/json?origin=$origin&destination=$destination&key=$key&mode=$mode';
 
     var response = await http.get(Uri.parse(url));
     var json = convert.jsonDecode(response.body);
-
     var results = {
       'bounds_ne': json['routes'][0]['bounds']['northeast'],
       'bounds_sw': json['routes'][0]['bounds']['southwest'],
@@ -50,8 +49,23 @@ class LocationService {
           .decodePolyline(json['routes'][0]['overview_polyline']['points'])
     };
 
-    print(results);
-
     return results;
+  }
+
+  Future<Map<String, dynamic>> getDirectionLength(
+      String origin, String destination) async {
+    final String url =
+        'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=$destination&origins=$origin&units=metric&key=$key';
+
+    // 'https://maps.googleapis.com/maps/api/distancematrix/json?destinations=$destination&origins=$origin&units=metric&key=$key';
+
+    var response = await http.get(Uri.parse(url));
+    var json = convert.jsonDecode(response.body);
+
+    var result = {
+      'length': json['rows'][0]['elements'][0]['distance']['value'],
+    };
+
+    return result;
   }
 }

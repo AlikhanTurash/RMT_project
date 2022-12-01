@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -37,12 +38,9 @@ class MapSampleState extends State<MapSample> {
   @override
   void initState() {
     super.initState();
-    _setMarker(LatLng(55.762292, 37.601592));
-    _setMarker(LatLng(55.764586, 37.645235));
-    _setMarker(LatLng(55.748793, 37.636734));
-    _setMarker(LatLng(55.738441, 37.617972));
-    _setMarker(LatLng(55.743318, 37.652758));
-    _setMarker(LatLng(55.745032, 37.595136));
+    for (int i = 0; i < 6; i++) {
+      _setMarker(_bicycleStops[i].position);
+    }
   }
 
   void _setMarker(LatLng point) {
@@ -58,60 +56,10 @@ class MapSampleState extends State<MapSample> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('ProductFit Map'), centerTitle: true),
-      body: Column(
+      resizeToAvoidBottomInset: true,
+      body: Stack(
+        alignment: Alignment.center,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  children: [
-                    TextFormField(
-                      controller: _originController,
-                      textCapitalization: TextCapitalization.words,
-                      decoration: InputDecoration(hintText: 'Origin'),
-                      onChanged: (value) {
-                        print(value);
-                      },
-                    ),
-                    TextFormField(
-                      controller: _destinationController,
-                      textCapitalization: TextCapitalization.words,
-                      decoration: InputDecoration(hintText: 'Destination'),
-                      onChanged: (value) {
-                        print(value);
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              IconButton(
-                onPressed: () async {
-                  var directions = await LocationService().getDirections(
-                      _originController.text, '55.762292,37.601592', 'WALKING');
-                  _setPolyline(directions['polyline_decoded'], Colors.blue);
-                  var directions2 = await LocationService().getDirections(
-                      '55.762292,37.601592',
-                      '55.764586,37.645235',
-                      'BICYCLING');
-                  _setPolyline(
-                      directions2['polyline_decoded'], Colors.pinkAccent);
-                  var directions3 = await LocationService().getDirections(
-                      '55.764586,37.645235',
-                      _destinationController.text,
-                      'WALKING');
-                  _setPolyline(directions3['polyline_decoded'], Colors.blue);
-                  //focusing the camera to the whole route
-                  _goToPlace(
-                      directions['start_location']['lat'],
-                      directions['start_location']['lng'],
-                      directions['bounds_ne'],
-                      directions['bounds_sw']);
-                },
-                icon: Icon(Icons.search),
-              )
-            ],
-          ),
           Expanded(
             child: GoogleMap(
               zoomControlsEnabled: false,
@@ -124,9 +72,143 @@ class MapSampleState extends State<MapSample> {
               markers: _markers,
             ),
           ),
+          SafeArea(
+            child: Column(
+              children: [
+                Container(
+                  width: MediaQuery.of(context).size.width / 1.1,
+                  height: MediaQuery.of(context).size.height / 6.7,
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.all(Radius.circular(20))),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            children: [
+                              TextFormField(
+                                controller: _originController,
+                                textCapitalization: TextCapitalization.words,
+                                decoration: InputDecoration(hintText: 'Origin'),
+                                onChanged: (value) {},
+                              ),
+                              TextFormField(
+                                controller: _destinationController,
+                                textCapitalization: TextCapitalization.words,
+                                decoration:
+                                    InputDecoration(hintText: 'Destination'),
+                                onChanged: (value) {},
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () async {
+                            int lastStopIndex =
+                                await _findClosestStop(_originController.text);
+                            int firstStopIndex = await _findClosestStop(
+                                _destinationController.text);
+
+                            print(firstStopIndex);
+                            print(lastStopIndex);
+
+                            _polylines.remove(context);
+
+                            var directions = await LocationService()
+                                .getDirections(
+                                    _originController.text,
+                                    _bicycleStops[firstStopIndex]
+                                            .position
+                                            .latitude
+                                            .toString() +
+                                        ',' +
+                                        _bicycleStops[firstStopIndex]
+                                            .position
+                                            .longitude
+                                            .toString(),
+                                    'walking');
+                            _setPolyline(
+                                directions['polyline_decoded'], Colors.blue);
+                            var directions2 = await LocationService()
+                                .getDirections(
+                                    _bicycleStops[firstStopIndex]
+                                            .position
+                                            .latitude
+                                            .toString() +
+                                        ',' +
+                                        _bicycleStops[firstStopIndex]
+                                            .position
+                                            .longitude
+                                            .toString(),
+                                    _bicycleStops[lastStopIndex]
+                                            .position
+                                            .latitude
+                                            .toString() +
+                                        ',' +
+                                        _bicycleStops[lastStopIndex]
+                                            .position
+                                            .longitude
+                                            .toString(),
+                                    'driving');
+                            _setPolyline(directions2['polyline_decoded'],
+                                Colors.pinkAccent);
+                            var directions3 = await LocationService()
+                                .getDirections(
+                                    _bicycleStops[lastStopIndex]
+                                            .position
+                                            .latitude
+                                            .toString() +
+                                        ',' +
+                                        _bicycleStops[lastStopIndex]
+                                            .position
+                                            .longitude
+                                            .toString(),
+                                    _destinationController.text,
+                                    'walking');
+                            _setPolyline(
+                                directions3['polyline_decoded'], Colors.blue);
+                            // focusing the camera to the whole route
+                            _goToPlace(
+                                directions['start_location']['lat'],
+                                directions['start_location']['lng'],
+                                directions['bounds_ne'],
+                                directions['bounds_sw']);
+                          },
+                          icon: Icon(Icons.search),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  Future<int> _findClosestStop(String point) async {
+    var res = [0, 0, 0, 0, 0, 0];
+    for (int i = 0; i < 6; i++) {
+      var a = await LocationService().getDirectionLength(
+        point,
+        _bicycleStops[i].position.latitude.toString() +
+            ',' +
+            _bicycleStops[i].position.longitude.toString(),
+      );
+      res[i] = a['length'];
+      // print(res[i]);
+    }
+    // for (int i = 0; i < 6; i++) {
+    //   res[i] = temp[i]['length'];
+    // }
+    int min = res.reduce((curr, next) => curr > next ? curr : next);
+    // print(res.indexOf(min));
+    // return res.indexOf(min);
+    return res.indexOf(min);
   }
 
   void _setPolyline(List<PointLatLng> points, Color color) {
