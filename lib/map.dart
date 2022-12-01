@@ -1,11 +1,11 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_app/location_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import './constants.dart';
 
 class MapSample extends StatefulWidget {
   @override
@@ -13,23 +13,21 @@ class MapSample extends StatefulWidget {
 }
 
 class MapSampleState extends State<MapSample> {
+  //контроллер Гугл Карт
   Completer<GoogleMapController> _controller = Completer();
 
+  //контроллеры текстфилдов
   TextEditingController _originController = TextEditingController();
   TextEditingController _destinationController = TextEditingController();
 
+  //коллекции маркеров и полилайнов
   Set<Marker> _markers = Set<Marker>();
   Set<Polyline> _polylines = Set<Polyline>();
-  List<Marker> _bicycleStops = [
-    Marker(markerId: MarkerId('stop1'), position: LatLng(55.762292, 37.601592)),
-    Marker(markerId: MarkerId('stop2'), position: LatLng(55.764586, 37.645235)),
-    Marker(markerId: MarkerId('stop3'), position: LatLng(55.748793, 37.636734)),
-    Marker(markerId: MarkerId('stop4'), position: LatLng(55.738441, 37.617972)),
-    Marker(markerId: MarkerId('stop5'), position: LatLng(55.743318, 37.652758)),
-    Marker(markerId: MarkerId('stop6'), position: LatLng(55.745032, 37.595136))
-  ];
+
+  //ID для полилайнов
   int _polylineIdCounter = 1;
 
+  //Позиция камеры на москву при иницализации карты
   static final CameraPosition _moscow = CameraPosition(
     target: LatLng(55.751244, 37.618423),
     zoom: 12,
@@ -38,11 +36,14 @@ class MapSampleState extends State<MapSample> {
   @override
   void initState() {
     super.initState();
+
+    //Инизализация маркеров стопов
     for (int i = 0; i < 6; i++) {
-      _setMarker(_bicycleStops[i].position);
+      _setMarker(bicycleStops[i].position);
     }
   }
 
+  //Функция установки маркера на карту
   void _setMarker(LatLng point) {
     setState(
       () {
@@ -119,12 +120,12 @@ class MapSampleState extends State<MapSample> {
                             var directions = await LocationService()
                                 .getDirections(
                                     _originController.text,
-                                    _bicycleStops[firstStopIndex]
+                                    bicycleStops[firstStopIndex]
                                             .position
                                             .latitude
                                             .toString() +
                                         ',' +
-                                        _bicycleStops[firstStopIndex]
+                                        bicycleStops[firstStopIndex]
                                             .position
                                             .longitude
                                             .toString(),
@@ -133,21 +134,21 @@ class MapSampleState extends State<MapSample> {
                                 directions['polyline_decoded'], Colors.blue);
                             var directions2 = await LocationService()
                                 .getDirections(
-                                    _bicycleStops[firstStopIndex]
+                                    bicycleStops[firstStopIndex]
                                             .position
                                             .latitude
                                             .toString() +
                                         ',' +
-                                        _bicycleStops[firstStopIndex]
+                                        bicycleStops[firstStopIndex]
                                             .position
                                             .longitude
                                             .toString(),
-                                    _bicycleStops[lastStopIndex]
+                                    bicycleStops[lastStopIndex]
                                             .position
                                             .latitude
                                             .toString() +
                                         ',' +
-                                        _bicycleStops[lastStopIndex]
+                                        bicycleStops[lastStopIndex]
                                             .position
                                             .longitude
                                             .toString(),
@@ -156,12 +157,12 @@ class MapSampleState extends State<MapSample> {
                                 Colors.pinkAccent);
                             var directions3 = await LocationService()
                                 .getDirections(
-                                    _bicycleStops[lastStopIndex]
+                                    bicycleStops[lastStopIndex]
                                             .position
                                             .latitude
                                             .toString() +
                                         ',' +
-                                        _bicycleStops[lastStopIndex]
+                                        bicycleStops[lastStopIndex]
                                             .position
                                             .longitude
                                             .toString(),
@@ -190,27 +191,26 @@ class MapSampleState extends State<MapSample> {
     );
   }
 
+  //Функция по поиску ближайшего стопа
+  //На выходе индекс ближайшего стопа
   Future<int> _findClosestStop(String point) async {
     var res = [0, 0, 0, 0, 0, 0];
     for (int i = 0; i < 6; i++) {
       var a = await LocationService().getDirectionLength(
         point,
-        _bicycleStops[i].position.latitude.toString() +
+        bicycleStops[i].position.latitude.toString() +
             ',' +
-            _bicycleStops[i].position.longitude.toString(),
+            bicycleStops[i].position.longitude.toString(),
       );
       res[i] = a['length'];
-      // print(res[i]);
     }
-    // for (int i = 0; i < 6; i++) {
-    //   res[i] = temp[i]['length'];
-    // }
+
     int min = res.reduce((curr, next) => curr > next ? curr : next);
-    // print(res.indexOf(min));
-    // return res.indexOf(min);
+
     return res.indexOf(min);
   }
 
+  //Функция отрисовки Полилайнов
   void _setPolyline(List<PointLatLng> points, Color color) {
     final String polylineIdVal = 'polyline_$_polylineIdCounter';
     _polylineIdCounter++;
@@ -227,10 +227,9 @@ class MapSampleState extends State<MapSample> {
     );
   }
 
+  //Функция перемещения камеры с анимацией
   Future<void> _goToPlace(double lat, double lng, Map<String, dynamic> boundsNe,
       Map<String, dynamic> boundsSw) async {
-    // final double lat = place['geometry']['location']['lat'];
-    // final double lng = place['geometry']['location']['lng'];
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(
       CameraUpdate.newCameraPosition(
