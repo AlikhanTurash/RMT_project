@@ -60,17 +60,15 @@ class MapSampleState extends State<MapSample> {
       body: Stack(
         alignment: Alignment.center,
         children: [
-          Expanded(
-            child: GoogleMap(
-              zoomControlsEnabled: false,
-              polylines: _polylines,
-              mapType: MapType.normal,
-              initialCameraPosition: _moscow,
-              onMapCreated: (GoogleMapController controller) {
-                _controller.complete(controller);
-              },
-              markers: _markers,
-            ),
+          GoogleMap(
+            zoomControlsEnabled: false,
+            polylines: _polylines,
+            mapType: MapType.normal,
+            initialCameraPosition: _moscow,
+            onMapCreated: (GoogleMapController controller) {
+              _controller.complete(controller);
+            },
+            markers: _markers,
           ),
           SafeArea(
             child: Column(
@@ -106,6 +104,8 @@ class MapSampleState extends State<MapSample> {
                         ),
                         IconButton(
                           onPressed: () async {
+                            _polylines.clear();
+
                             int lastStopIndex =
                                 await _findClosestStop(_originController.text);
                             int firstStopIndex = await _findClosestStop(
