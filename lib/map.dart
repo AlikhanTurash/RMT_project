@@ -60,7 +60,7 @@ class MapSampleState extends State<MapSample> {
       String? title = _userModel?.result[i].title;
       var a = (coordinates?.split('|')[1])?.split(';');
       LatLng latLng = LatLng(double.parse(a![0]), double.parse(a[1]));
-      _setMarker(latLng, title);
+      _setMarker(latLng, title, '');
       if (title!.contains('Продавец')) {
         sellerLatLng.add(latLng);
       }
@@ -84,27 +84,23 @@ class MapSampleState extends State<MapSample> {
     _getMatchDirectionLength(origin, destination);
   }
 
-  Future<double> _getMatchDirectionLength(
+  Future<int> _getMatchDirectionLength(
       String origin, String destination) async {
-    double length = 0;
+    int length = 0;
     var a = await LocationService().getDirectionLength(origin, destination);
-    length = double.parse(a['length']);
-    print(length);
-
+    length = a['length'];
     return length;
   }
 
   //Функция установки маркера на карту
-  void _setMarker(LatLng point, String? title) {
+  void _setMarker(LatLng point, String? title, String? snippet) {
     setState(
       () {
         _markers.add(
           Marker(
               markerId: MarkerId(title!),
               position: point,
-              infoWindow: InfoWindow(
-                  title: title,
-                  snippet: 'Test tetkdjflksjd l fskldjf lksdj fljsd lf')),
+              infoWindow: InfoWindow(title: title, snippet: snippet)),
         );
       },
     );
