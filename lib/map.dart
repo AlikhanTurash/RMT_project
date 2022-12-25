@@ -63,9 +63,11 @@ class MapSampleState extends State<MapSample> {
       _setMarker(latLng, title, '');
       if (title!.contains('Продавец')) {
         sellerLatLng.add(latLng);
+        _setMarker(latLng, title, 'Продавец');
       }
       if (title.contains('Покупатель')) {
         buyerLatLng.add(latLng);
+        _setMarker(latLng, title, 'Покупатель');
       }
     }
     for (int i = 0; i < sellerLatLng.length; i++) {
@@ -91,6 +93,18 @@ class MapSampleState extends State<MapSample> {
     length = a['length'];
     return length;
   }
+
+  // void _updateMarker(String? title, String? snippet) {
+  //   setState(
+  //     () {
+  //       _markers.add(
+  //         Marker(
+  //             markerId: MarkerId(title!),
+  //             infoWindow: InfoWindow(title: title, snippet: snippet)),
+  //       );
+  //     },
+  //   );
+  // }
 
   //Функция установки маркера на карту
   void _setMarker(LatLng point, String? title, String? snippet) {
