@@ -53,7 +53,6 @@ class MapSampleState extends State<MapSample> {
 
   void _getData() async {
     _userModel = await DataService().getData();
-    Future.delayed(const Duration(seconds: 1)).then((value) => setState(() {}));
     _setUserMarkers();
   }
 
@@ -161,20 +160,153 @@ class MapSampleState extends State<MapSample> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: SlidingUpPanel(
-        body: GoogleMap(
-          zoomControlsEnabled: false,
-          polylines: _polylines,
-          mapType: MapType.normal,
-          initialCameraPosition: _moscow,
-          onMapCreated: (GoogleMapController controller) {
-            _controller.complete(controller);
-          },
-          markers: _markers,
-        ),
-        panel: Center(
-          child: Text('Text'),
-        ),
-      ),
+          body: GoogleMap(
+            zoomControlsEnabled: false,
+            polylines: _polylines,
+            mapType: MapType.normal,
+            initialCameraPosition: _moscow,
+            onMapCreated: (GoogleMapController controller) {
+              _controller.complete(controller);
+            },
+            markers: _markers,
+          ),
+          panel: _userModel == null || _userModel!.result.isEmpty
+              ? const Center(
+                  child: CircularProgressIndicator(),
+                )
+              : Padding(
+                  padding: EdgeInsets.all(15),
+                  child: Column(
+                    children: [
+                      Card(
+                        clipBehavior: Clip.antiAlias,
+                        elevation: 8,
+                        child: Column(
+                          children: [
+                            ListTile(
+                              leading: Icon(Icons.arrow_drop_down_circle),
+                              title: Text(
+                                  Matches[0].seller + '—' + Matches[0].buyer),
+                              subtitle: Text(
+                                Matches[0].profit.toString() + 'руб.',
+                                style: TextStyle(
+                                    color: Colors.black.withOpacity(0.6)),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    'Продавец: ' + Matches[0].seller,
+                                    style: TextStyle(
+                                        color: Colors.black.withOpacity(0.6)),
+                                  ),
+                                  Text(
+                                    'Покупатель: ' + Matches[0].buyer,
+                                    style: TextStyle(
+                                        color: Colors.black.withOpacity(0.6)),
+                                  ),
+                                  Text(
+                                    'Доход: ' +
+                                        Matches[0].profit.toString() +
+                                        'руб.',
+                                    style: TextStyle(
+                                        color: Colors.black.withOpacity(0.6)),
+                                  ),
+                                  Text(
+                                    'Цена продавца: ' +
+                                        Matches[0].sellerPrice.toString() +
+                                        'руб.',
+                                    style: TextStyle(
+                                        color: Colors.black.withOpacity(0.6)),
+                                  ),
+                                  Text(
+                                    'Цена покупателя: ' +
+                                        Matches[0].buyerPrice.toString() +
+                                        'руб.',
+                                    style: TextStyle(
+                                        color: Colors.black.withOpacity(0.6)),
+                                  ),
+                                  Text(
+                                    'Доставка: ' +
+                                        Matches[0].delivery.toString() +
+                                        'руб.',
+                                    style: TextStyle(
+                                        color: Colors.black.withOpacity(0.6)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Card(
+                        clipBehavior: Clip.antiAlias,
+                        elevation: 8,
+                        child: Column(
+                          children: [
+                            ListTile(
+                              leading: Icon(Icons.arrow_drop_down_circle),
+                              title: Text(
+                                  Matches[1].seller + '—' + Matches[1].buyer),
+                              subtitle: Text(
+                                Matches[1].profit.toString() + 'руб.',
+                                style: TextStyle(
+                                    color: Colors.black.withOpacity(0.6)),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    'Продавец: ' + Matches[1].seller,
+                                    style: TextStyle(
+                                        color: Colors.black.withOpacity(0.6)),
+                                  ),
+                                  Text(
+                                    'Покупатель: ' + Matches[1].buyer,
+                                    style: TextStyle(
+                                        color: Colors.black.withOpacity(0.6)),
+                                  ),
+                                  Text(
+                                    'Доход: ' +
+                                        Matches[1].profit.toString() +
+                                        'руб.',
+                                    style: TextStyle(
+                                        color: Colors.black.withOpacity(0.6)),
+                                  ),
+                                  Text(
+                                    'Цена продавца: ' +
+                                        Matches[1].sellerPrice.toString() +
+                                        'руб.',
+                                    style: TextStyle(
+                                        color: Colors.black.withOpacity(0.6)),
+                                  ),
+                                  Text(
+                                    'Цена покупателя: ' +
+                                        Matches[1].buyerPrice.toString() +
+                                        'руб.',
+                                    style: TextStyle(
+                                        color: Colors.black.withOpacity(0.6)),
+                                  ),
+                                  Text(
+                                    'Доставка: ' +
+                                        Matches[1].delivery.toString() +
+                                        'руб.',
+                                    style: TextStyle(
+                                        color: Colors.black.withOpacity(0.6)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
     );
   }
 
