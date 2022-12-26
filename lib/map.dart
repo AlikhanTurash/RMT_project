@@ -7,6 +7,7 @@ import 'package:google_maps_app/location_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import './constants.dart';
+import 'match_class.dart';
 import 'model.dart';
 
 class MapSample extends StatefulWidget {
@@ -40,6 +41,9 @@ class MapSampleState extends State<MapSample> {
     target: LatLng(55.751244, 37.618423),
     zoom: 8,
   );
+
+  //List of matches
+  List<MatchItem> Matches = [];
 
   @override
   void initState() {
@@ -86,7 +90,8 @@ class MapSampleState extends State<MapSample> {
           "," +
           buyerLatLng[0].longitude.toString());
       lengthMetres.add(await _getMatchDirectionLength(origin, destination));
-      String? title = _userModel?.result[i].title;
+      String? sellerTitle = _userModel?.result[i].title;
+      String? buyerTitle = _userModel?.result[2].title;
       int quantity = 1;
       double profit;
       double deliveryCost = 1000 + lengthMetres[i] / 10;
@@ -94,13 +99,16 @@ class MapSampleState extends State<MapSample> {
       double priceSeller = double.parse(_userModel!.result[i].opportunity);
       profit = priceBuyer * quantity - priceSeller * quantity - deliveryCost;
       String snippet = 'Доход: ' + profit.toString() + 'руб.';
-      if (title!.contains('Продавец')) {
-        _setMarker(sellerLatLng[i], title, snippet);
-      } else if (title.contains('Покупатель')) {
-        _setMarker(sellerLatLng[i], title, snippet);
+      if (sellerTitle!.contains('Продавец')) {
+        _setMarker(sellerLatLng[i], sellerTitle, snippet);
+      } else if (sellerTitle.contains('Покупатель')) {
+        _setMarker(sellerLatLng[i], sellerTitle, snippet);
       }
+      print(MatchItem(sellerTitle, buyerTitle!, profit, priceSeller, priceBuyer,
+          deliveryCost));
+      Matches.add(MatchItem(sellerTitle, buyerTitle!, profit, priceSeller,
+          priceBuyer, deliveryCost));
     }
-    print(lengthMetres);
   }
 
   void _drawRoute(LatLng a, LatLng b) async {
@@ -164,7 +172,7 @@ class MapSampleState extends State<MapSample> {
           markers: _markers,
         ),
         panel: Center(
-          child: Text('Test'),
+          child: Text('Text'),
         ),
       ),
     );
