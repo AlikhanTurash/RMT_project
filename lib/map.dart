@@ -5,6 +5,7 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_app/data_service.dart';
 import 'package:google_maps_app/location_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
 import './constants.dart';
 import 'model.dart';
 
@@ -151,15 +152,20 @@ class MapSampleState extends State<MapSample> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      body: GoogleMap(
-        zoomControlsEnabled: false,
-        polylines: _polylines,
-        mapType: MapType.normal,
-        initialCameraPosition: _moscow,
-        onMapCreated: (GoogleMapController controller) {
-          _controller.complete(controller);
-        },
-        markers: _markers,
+      body: SlidingUpPanel(
+        body: GoogleMap(
+          zoomControlsEnabled: false,
+          polylines: _polylines,
+          mapType: MapType.normal,
+          initialCameraPosition: _moscow,
+          onMapCreated: (GoogleMapController controller) {
+            _controller.complete(controller);
+          },
+          markers: _markers,
+        ),
+        panel: Center(
+          child: Text('Test'),
+        ),
       ),
     );
   }
