@@ -50,7 +50,7 @@ class MapSampleState extends State<MapSample> {
     _setUserMarkers();
   }
 
-  void _setUserMarkers() {
+  void _setUserMarkers() async {
     int? count = _userModel?.result.length;
     List<LatLng> sellerLatLng = [];
     List<LatLng> buyerLatLng = [];
@@ -64,15 +64,36 @@ class MapSampleState extends State<MapSample> {
       if (title!.contains('Продавец')) {
         sellerLatLng.add(latLng);
         _setMarker(latLng, title, 'Продавец');
-      }
-      if (title.contains('Покупатель')) {
+      } else if (title.contains('Покупатель')) {
         buyerLatLng.add(latLng);
         _setMarker(latLng, title, 'Покупатель');
       }
     }
+    List<double> pathLat = [];
+    List<double> pathLng = [];
+    List<int> lengthMetres = [];
     for (int i = 0; i < sellerLatLng.length; i++) {
       _drawRoute(sellerLatLng[i], buyerLatLng[0]);
+      pathLat.add(sellerLatLng[i].latitude);
+      pathLng.add(sellerLatLng[i].longitude);
+      String origin = (sellerLatLng[i].latitude.toString() +
+          "," +
+          sellerLatLng[i].longitude.toString());
+      String destination = (buyerLatLng[0].latitude.toString() +
+          "," +
+          buyerLatLng[0].longitude.toString());
+      lengthMetres.add(await _getMatchDirectionLength(origin, destination));
+      String? title = _userModel?.result[i].title;
+      double profit;
+      double deliveryCost = 1000 + lengthMetres[i] / 10;
+      // String snippet =;
+      if (title!.contains('Продавец')) {
+        _setMarker(sellerLatLng[i], title, deliveryCost.toString());
+      } else if (title.contains('Покупатель')) {
+        _setMarker(sellerLatLng[i], title, deliveryCost.toString());
+      }
     }
+    print(lengthMetres);
   }
 
   void _drawRoute(LatLng a, LatLng b) async {
@@ -83,7 +104,6 @@ class MapSampleState extends State<MapSample> {
     var directions1 = await LocationService()
         .getDirections(origin.toString(), destination.toString(), 'driving');
     _setPolyline(directions1['polyline_decoded'], Colors.pinkAccent);
-    _getMatchDirectionLength(origin, destination);
   }
 
   Future<int> _getMatchDirectionLength(
@@ -91,6 +111,7 @@ class MapSampleState extends State<MapSample> {
     int length = 0;
     var a = await LocationService().getDirectionLength(origin, destination);
     length = a['length'];
+    print(length);
     return length;
   }
 
