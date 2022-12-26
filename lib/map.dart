@@ -84,13 +84,17 @@ class MapSampleState extends State<MapSample> {
           buyerLatLng[0].longitude.toString());
       lengthMetres.add(await _getMatchDirectionLength(origin, destination));
       String? title = _userModel?.result[i].title;
+      int quantity = 1;
       double profit;
       double deliveryCost = 1000 + lengthMetres[i] / 10;
-      // String snippet =;
+      double priceBuyer = double.parse(_userModel!.result[2].opportunity);
+      double priceSeller = double.parse(_userModel!.result[i].opportunity);
+      profit = priceBuyer * quantity - priceSeller * quantity - deliveryCost;
+      String snippet = 'Доход: ' + profit.toString() + 'руб.';
       if (title!.contains('Продавец')) {
-        _setMarker(sellerLatLng[i], title, deliveryCost.toString());
+        _setMarker(sellerLatLng[i], title, snippet);
       } else if (title.contains('Покупатель')) {
-        _setMarker(sellerLatLng[i], title, deliveryCost.toString());
+        _setMarker(sellerLatLng[i], title, snippet);
       }
     }
     print(lengthMetres);
