@@ -1,4 +1,4 @@
-# google_maps_app
+# RMT_AR_application
 
 A new Flutter project.
 
