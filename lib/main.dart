@@ -8,7 +8,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Google Maps Demo test',
+      title: 'Flutter Google Maps Demo test1',
       home: MainPage(),
     );
   }
